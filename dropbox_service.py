@@ -1,6 +1,7 @@
-import dropbox
-import os
 import datetime
+import os
+
+import dropbox
 
 TOKEN_DROPBOX = os.environ.get("TOKEN_DROPBOX")
 
@@ -38,6 +39,13 @@ class TransferData:
         if dir_name in [i.name for i in self.dbx.files_list_folder('').entries]:
             return f"{dir_name} exists"
         return f"{dir_name} not exists"
+
+    def delete_todays_dir(self, dir_name):
+        if dir_name in [i.name for i in self.dbx.files_list_folder('').entries]:
+            self.dbx.files_delete_v2(f'/{dir_name}')
+            return f'{dir_name} delete'
+        else:
+            return f'today you did not make photo'
 
     def path_file(self):
         link = self.dbx.sharing_create_shared_link(f'/{datetime.datetime.now().strftime("%Y_%m_%d")}/{self.file}')

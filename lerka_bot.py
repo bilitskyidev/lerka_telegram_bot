@@ -1,8 +1,10 @@
-import telebot
-from dropbox_service import TransferData
-import os
-import logging
 import datetime
+import logging
+import os
+
+import telebot
+
+from dropbox_service import TransferData
 
 logging.basicConfig(filename='errors_log.log', level=logging.ERROR)
 
@@ -47,6 +49,14 @@ def check_message(message):
     drop_file = TransferData()
     message_check = drop_file.check_dir_data(data)
     bot.reply_to(message, message_check)
+
+
+@bot.message_handler(content_types=["text"], func=lambda x: x.text == 'reset' and x.from_user.id in WHITE_LIST_IDS)
+def del_today_file(message):
+    data = f'{datetime.datetime.now().strftime("%Y_%m_%d")}'
+    drop_file = TransferData()
+    message_reset = drop_file.delete_todays_dir(data)
+    bot.reply_to(message, message_reset)
 
 
 try:
