@@ -97,9 +97,15 @@ def del_today_files(message):
 
 def cron_send_messages():
     while True:
-        bot.send_message(ADMIN_ID, "Test multiprocessing")
-        period_sleep = 60 - datetime.datetime.now().minute
-        time.sleep(60 * period_sleep)
+        if datetime.datetime.now().hour < 9:
+            period_sleep = (
+                                       9 - datetime.datetime.now().hour) * 60 - datetime.datetime.now().minute - datetime.datetime.now().second / 60
+            time.sleep(period_sleep)
+        else:
+            period_sleep = (
+                                       33 - datetime.datetime.now().hour) * 60 - datetime.datetime.now().minute - datetime.datetime.now().second / 60
+            time.sleep(period_sleep)
+        bot.send_message(LERA_ID, "Доброе утро, солнышкоб хорошего дня тебе")
 
 
 p1 = Process(target=cron_send_messages, args=())
