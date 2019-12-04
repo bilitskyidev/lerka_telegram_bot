@@ -28,6 +28,7 @@ def send_welcome(message):
 @bot.message_handler(content_types=['photo'], func=lambda x: x.from_user.id in WHITE_LIST_IDS)
 def get_photo_messages(message):
     try:
+        print(f'get photo {message}')
         bot.send_message(ADMIN_ID, "Start use by user: {}".format(
             message.from_user)) if message.from_user.id not in WHITE_LIST_IDS else None
         photo_id = message.photo[-1].file_id
@@ -37,7 +38,9 @@ def get_photo_messages(message):
             f.write(downloaded_file)
         drop_file = TransferData(f'{datetime.datetime.now().strftime("%Y_%m_%d")}_{photo_id[:15]}.jpg')
         drop_file.upload_file()
+        print('photo uploaded on dropbox')
         os.remove(f'{datetime.datetime.now().strftime("%Y_%m_%d")}_{photo_id[:15]}.jpg')
+        print('photo deleted from heroku storage')
         bot.reply_to(message, "photo saved")
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
@@ -47,13 +50,16 @@ def get_photo_messages(message):
                      func=lambda x: x.text not in ['check', 'reset'] and x.from_user.id in WHITE_LIST_IDS)
 def get_text_message(message):
     try:
+        print(f'get text {message}')
         bot.send_message(ADMIN_ID, "Start use by user: {}".format(
             message.from_user)) if message.from_user.id not in WHITE_LIST_IDS else None
         with open(f'{datetime.datetime.now().strftime("%Y_%m_%d")}.txt', 'w') as f:
             f.write(message.text)
         drop_file = TransferData(f'{datetime.datetime.now().strftime("%Y_%m_%d")}.txt')
         drop_file.upload_file()
+        print('text file uploaded to dropbox')
         os.remove(f'{datetime.datetime.now().strftime("%Y_%m_%d")}.txt')
+        print('text file removed from heroku storage')
         bot.reply_to(message, "message saved")
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
@@ -62,11 +68,13 @@ def get_text_message(message):
 @bot.message_handler(content_types=["text"], func=lambda x: x.text == 'check' and x.from_user.id in WHITE_LIST_IDS)
 def check_message(message):
     try:
+        print(f'start check exists directory {datetime.datetime.now()}')
         bot.send_message(ADMIN_ID, "Start use by user: {}".format(
             message.from_user)) if message.from_user.id not in WHITE_LIST_IDS else None
         data = f'{datetime.datetime.now().strftime("%Y_%m_%d")}'
         drop_file = TransferData()
         message_check = drop_file.check_dir_data(data)
+        print(f'Result of checking {message_check}')
         bot.reply_to(message, message_check)
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
@@ -75,11 +83,13 @@ def check_message(message):
 @bot.message_handler(content_types=["text"], func=lambda x: x.text == 'reset' and x.from_user.id in WHITE_LIST_IDS)
 def del_today_files(message):
     try:
+        print(f'start reset {datetime.datetime.now()}')
         bot.send_message(ADMIN_ID, "Start use by user: {}".format(
             message.from_user)) if message.from_user.id not in WHITE_LIST_IDS else None
         data = f'{datetime.datetime.now().strftime("%Y_%m_%d")}'
         drop_file = TransferData()
         message_reset = drop_file.delete_todays_dir(data)
+        print(f'finish reset with answer {message_reset}')
         bot.reply_to(message, message_reset)
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
@@ -100,4 +110,3 @@ try:
 except Exception as e:
     print(e)
     logging.error('{}: {}'.format(datetime.datetime.now(), e))
-    raise e
