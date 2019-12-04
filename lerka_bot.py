@@ -99,18 +99,12 @@ def del_today_files(message):
 def cron_send_messages():
     while True:
         if datetime.datetime.now().hour < HOUR_FOR_ALERT_MESSAGE:
-            period_sleep = (HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour)\
-                           * 60\
-                           - datetime.datetime.now().minute\
-                           - datetime.datetime.now().second / 60
+            period_sleep = ((HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             time.sleep(period_sleep)
         else:
-            period_sleep = (24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour)\
-                           * 60\
-                           - datetime.datetime.now().minute\
-                           - datetime.datetime.now().second / 60
+            period_sleep = ((24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             time.sleep(period_sleep)
-        bot.send_message(LERA_ID, "Доброе утро, солнышко, хорошего дня тебе")
+        bot.send_message(ADMIN_ID, "Доброе утро, солнышко, хорошего дня тебе")
 
 
 p1 = Process(target=cron_send_messages, args=())
