@@ -13,6 +13,7 @@ logging.basicConfig(filename='errors_log.log', level=logging.ERROR)
 ADMIN_ID = int(os.environ.get("ADMIN_ID", None))
 LERA_ID = int(os.environ.get("LERA_ID", None))
 
+HOUR_FOR_ALERT_MESSAGE = int(os.environ.get('HOUR_FOR_ALERT_MESSAGE'))
 WHITE_LIST_IDS = [ADMIN_ID, LERA_ID]
 TOKEN_TELEGRAM = os.environ.get('TOKEN_TELEGRAM')
 bot = telebot.TeleBot(TOKEN_TELEGRAM)
@@ -97,14 +98,14 @@ def del_today_files(message):
 
 def cron_send_messages():
     while True:
-        if datetime.datetime.now().hour < 9:
-            period_sleep = (9 - datetime.datetime.now().hour)\
+        if datetime.datetime.now().hour < HOUR_FOR_ALERT_MESSAGE:
+            period_sleep = (HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour)\
                            * 60\
                            - datetime.datetime.now().minute\
                            - datetime.datetime.now().second / 60
             time.sleep(period_sleep)
         else:
-            period_sleep = (33 - datetime.datetime.now().hour)\
+            period_sleep = (24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour)\
                            * 60\
                            - datetime.datetime.now().minute\
                            - datetime.datetime.now().second / 60
