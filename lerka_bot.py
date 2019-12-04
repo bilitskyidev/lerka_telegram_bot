@@ -104,7 +104,7 @@ def cron_send_messages():
         else:
             period_sleep = ((24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             time.sleep(period_sleep)
-        bot.send_message(ADMIN_ID, "Доброе утро, солнышко, хорошего дня тебе")
+        bot.send_message(ADMIN_ID, "Test multiprocessing")
 
 
 p1 = Process(target=cron_send_messages, args=())
