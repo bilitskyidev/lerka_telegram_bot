@@ -102,13 +102,13 @@ def cron_send_messages():
             print("calculate period_sleep")
             period_sleep = ((HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             print(f"period_sleep{period_sleep}")
-            time.sleep(period_sleep)
+            time.sleep(period_sleep * 60)
             print("end period_sleep")
         else:
             print("calculate period_sleep")
             period_sleep = ((24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             print(f"period_sleep{period_sleep}")
-            time.sleep(period_sleep)
+            time.sleep(period_sleep * 60)
             print("end period_sleep")
         bot.send_message(ADMIN_ID, "Test multiprocessing")
 
