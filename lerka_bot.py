@@ -1,6 +1,8 @@
 import datetime
 import logging
 import os
+import time
+from multiprocessing import Process
 
 import telebot
 
@@ -82,6 +84,16 @@ def del_today_files(message):
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
 
+
+def cron_send_messages():
+    while True:
+        bot.send_message(ADMIN_ID, "Test multiprocessing")
+        period_sleep = 60 - datetime.datetime.now().minute
+        time.sleep(60 * period_sleep)
+
+
+p1 = Process(target=cron_send_messages, args=())
+p1.start()
 
 try:
     bot.infinity_polling(none_stop=True, interval=0)
