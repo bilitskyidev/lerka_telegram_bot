@@ -111,6 +111,7 @@ def cron_send_messages():
             time.sleep(period_sleep * 60)
             print("end period_sleep")
         bot.send_message(LERA_ID, "Have a Good Day and don't forget to take a photo if Anton forgets))))")
+        bot.send_message(ADMIN_ID, "Don't forget to take a photo!!!")
 
 
 p1 = Process(target=cron_send_messages, args=())
