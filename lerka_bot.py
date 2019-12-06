@@ -110,7 +110,7 @@ def cron_send_messages():
             print(f"period_sleep{period_sleep}")
             time.sleep(period_sleep * 60)
             print("end period_sleep")
-        bot.send_message(ADMIN_ID, "Test multiprocessing")
+        bot.send_message(LERA_ID, "Have a Good Day and don't forget to take a photo if Anton forgets))))")
 
 
 p1 = Process(target=cron_send_messages, args=())
