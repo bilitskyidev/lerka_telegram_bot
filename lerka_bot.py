@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 import time
@@ -14,6 +15,8 @@ ADMIN_ID = int(os.environ.get("ADMIN_ID", None))
 LERA_ID = int(os.environ.get("LERA_ID", None))
 
 HOUR_FOR_ALERT_MESSAGE = int(os.environ.get('HOUR_FOR_ALERT_MESSAGE'))
+HOUR_FOR_ALERT_MESSAGE_SECOND = int(os.environ.get('HOUR_FOR_ALERT_MESSAGE_SECOND'))
+
 WHITE_LIST_IDS = [ADMIN_ID, LERA_ID]
 TOKEN_TELEGRAM = os.environ.get('TOKEN_TELEGRAM')
 bot = telebot.TeleBot(TOKEN_TELEGRAM)
@@ -89,33 +92,60 @@ def del_today_files(message):
             message.from_user)) if message.from_user.id not in WHITE_LIST_IDS else None
         data = f'{datetime.datetime.now().strftime("%Y_%m_%d")}'
         drop_file = TransferData()
-        message_reset = drop_file.delete_todays_dir(data)
+        message_reset = drop_file.delete_today_dir(data)
         print(f'finish reset with answer {message_reset}')
         bot.reply_to(message, message_reset)
     except Exception as e:
         bot.reply_to(message, f'Error {e.args}')
 
 
-def cron_send_messages():
+def send_message(*args, **kwargs):
+    print('start action')
+    bot.send_message(LERA_ID, "Have a Good Day and don't forget to take a photo if Anton forgets))))")
+    bot.send_message(ADMIN_ID, "Don't forget to take a photo!!!")
+
+
+def send_today_history(dir_name):
+    print("check_history")
+    old_data = dir_name.split("_")
+    old_data[0] = str(int(old_data[0]) - 1)
+    old_data = "_".join(old_data)
+    dbx = TransferData()
+    files = dbx.get_history(old_data)
+    if files:
+        bot.send_message(LERA_ID, f'Ваша история за {old_data}')
+        bot.send_message(ADMIN_ID, f'Ваша история за {old_data}')
+        for file in files:
+            if json.loads(file.headers['dropbox-api-result'])['name'].endswith(".txt"):
+                bot.send_message(LERA_ID, file.content.decode("utf-8"))
+                bot.send_message(ADMIN_ID, file.content.decode("utf-8"))
+            else:
+                bot.send_photo(LERA_ID, photo=file.content)
+                bot.send_photo(ADMIN_ID, photo=file.content)
+
+
+def cron_send_messages(period, action):
     while True:
-        if datetime.datetime.now().hour < HOUR_FOR_ALERT_MESSAGE:
+        if datetime.datetime.now().hour < period:
             print("calculate period_sleep")
-            period_sleep = ((HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
+            period_sleep = ((period - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             print(f"period_sleep{period_sleep}")
             time.sleep(period_sleep * 60)
             print("end period_sleep")
         else:
             print("calculate period_sleep")
-            period_sleep = ((24 + HOUR_FOR_ALERT_MESSAGE - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
+            period_sleep = ((24 + period - datetime.datetime.now().hour) * 60) - datetime.datetime.now().minute - (datetime.datetime.now().second / 60)
             print(f"period_sleep{period_sleep}")
             time.sleep(period_sleep * 60)
             print("end period_sleep")
-        bot.send_message(LERA_ID, "Have a Good Day and don't forget to take a photo if Anton forgets))))")
-        bot.send_message(ADMIN_ID, "Don't forget to take a photo!!!")
+        action(datetime.datetime.now().strftime("%Y_%m_%d"))
 
 
-p1 = Process(target=cron_send_messages, args=())
+p1 = Process(target=cron_send_messages, args=(HOUR_FOR_ALERT_MESSAGE, send_message, ))
 p1.start()
+
+p2 = Process(target=cron_send_messages, args=(HOUR_FOR_ALERT_MESSAGE_SECOND, send_today_history, ))
+p2.start()
 
 try:
     bot.infinity_polling(none_stop=True, interval=0)
